@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "hoard.h"
+#include "structs.h"
 
 void *getCore(unsigned int );
 
@@ -98,7 +98,7 @@ void *popBlock(superblock_t *pSb){
 
 }
 
-void *pushBlock(superblock_t *pSb, block_header_t *pBlk){
+superblock_t *pushBlock(superblock_t *pSb, block_header_t *pBlk){
 
 	if (pSb->_meta._NoFreeBlks==pSb->_meta._NoBlks)
 		return NULL; /* stack full */
@@ -112,5 +112,17 @@ void *pushBlock(superblock_t *pSb, block_header_t *pBlk){
 
 	pSb->_meta._NoFreeBlks++;
 
+	return pSb;
+
+}
+
+
+
+unsigned short getFullness(superblock_t *pSb){
+
+	float fullness=(pSb->_meta._NoFreeBlks)
+			         /(pSb->_meta._NoBlks);
+
+	return ((unsigned short)fullness*100);
 
 }

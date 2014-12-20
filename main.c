@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <strings.h>
-#include "hoard.h"
+#include "structs.h"
 
 superblock_t* makeSuperblock(unsigned int );
 
