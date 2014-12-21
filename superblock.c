@@ -49,8 +49,10 @@ superblock_t* makeSuperblock(unsigned int sizeClass) {
 	/* the number of blocks that we'll generate in this superblock */
 	unsigned int i, numberOfBlocks = normSuperblockSize  / blockOffset;
 
+	/* call system to allocate memory */
 	superblock_t *pSb = (superblock_t*) getCore(SUPERBLOCK_SIZE);
 
+	pSb->_meta._sizeClass=sizeClass;
 	pSb->_meta._NoBlks = pSb->_meta._NoFreeBlks = numberOfBlocks;
 	pSb->_meta._pNxtSBlk = pSb->_meta._pPrvSblk = NULL;
 
@@ -76,6 +78,10 @@ superblock_t* makeSuperblock(unsigned int sizeClass) {
 
 }
 
+/**
+ * pop a block from the top of the stack.
+ * caller must call the relocateSuperBlockBack on the owning heap to update the superblock's position
+ */
 void *popBlock(superblock_t *pSb){
 
 	if ( !pSb->_meta._NoFreeBlks)
@@ -94,10 +100,16 @@ void *popBlock(superblock_t *pSb){
 	/* disconnect from stack - but leave the owner for when the user wants to free it*/
 	pTail->_pNextBlk=NULL;
 
+
+
 	return pTail;
 
 }
 
+/**
+ * push a block to the top of the stack.
+ * caller must call the relocateSuperBlockAhead on the owning heap to update the superblock's position
+ */
 superblock_t *pushBlock(superblock_t *pSb, block_header_t *pBlk){
 
 	if (pSb->_meta._NoFreeBlks==pSb->_meta._NoBlks)
@@ -117,16 +129,21 @@ superblock_t *pushBlock(superblock_t *pSb, block_header_t *pBlk){
 }
 
 
-
+/* reruns the percentage (0-100) of used blocks out of total blocks */
 unsigned short getFullness(superblock_t *pSb){
 
-	double fullness=((double)(pSb->_meta._NoFreeBlks))/
+	double freeness=((double)(pSb->_meta._NoFreeBlks))/
 			         ((double)(pSb->_meta._NoBlks));
+
+	double fullness=1-freeness;
 
 	return ((unsigned short)(fullness*100));
 
 }
 
+/**
+ * utility function for printing a superblock
+ */
 void printSuperblock(superblock_t *pSb){
 	unsigned int i;
 	block_header_t *p=pSb->_meta._pFreeBlkStack;
