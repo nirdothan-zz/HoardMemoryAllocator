@@ -120,9 +120,23 @@ superblock_t *pushBlock(superblock_t *pSb, block_header_t *pBlk){
 
 unsigned short getFullness(superblock_t *pSb){
 
-	float fullness=(pSb->_meta._NoFreeBlks)
-			         /(pSb->_meta._NoBlks);
+	double fullness=((double)(pSb->_meta._NoFreeBlks))/
+			         ((double)(pSb->_meta._NoBlks));
 
-	return ((unsigned short)fullness*100);
+	return ((unsigned short)(fullness*100));
+
+}
+
+void printSuperblock(superblock_t *pSb){
+	unsigned int i;
+	block_header_t *p=pSb->_meta._pFreeBlkStack;
+	printf("  Superblock: [%p] blocks: [%d] free [%d]\n", pSb, pSb->_meta._NoBlks, pSb->_meta._NoFreeBlks);
+	printf("	[%p]<----prev    next---->[%p]\n",  pSb->_meta._pPrvSblk, pSb->_meta._pNxtSBlk);
+	printf("	====================================\n");
+
+	for(i=0; i< pSb->_meta._NoFreeBlks; i++, p=p->_pNextBlk){
+		printf("		free block %d) [%p]\n",i,p);
+	}
+
 
 }

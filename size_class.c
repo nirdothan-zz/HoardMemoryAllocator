@@ -9,6 +9,9 @@
 #include "structs.h"
 
 unsigned short getFullness(superblock_t*);
+superblock_t *removeSuperblock(size_class_t*, superblock_t*);
+void printSuperblock(superblock_t *);
+void printSizeClass(size_class_t *);
 
 void makeSizeClass(size_class_t *sizeClass, unsigned int size) {
 	sizeClass->_sizeClass = size;
@@ -143,7 +146,7 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 		superblock_t *superBlock) {
 
 	superblock_t *pPrevSb = superBlock->_meta._pPrvSblk;
-	superblock_t *pNextSb = superBlock->_meta._pPrvSblk;
+	superblock_t *pNextSb = superBlock->_meta._pNxtSBlk;
 
 	if (sizeClass->_SBlkList._first == superBlock) {/* it's first */
 
@@ -172,6 +175,19 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 	sizeClass->_SBlkList._length--;
 	superBlock->_meta._pNxtSBlk = superBlock->_meta._pPrvSblk = NULL;
 	return superBlock;
+
+}
+
+void printSizeClass(size_class_t *sizeClass){
+	int i;
+	superblock_t *p=sizeClass->_SBlkList._first;
+	printf("SizeClass [%d] # superblocks [%d]\n",sizeClass->_sizeClass, sizeClass->_SBlkList._length);
+
+	for(i=0;i< sizeClass->_SBlkList._length; i++, p=p->_meta._pNxtSBlk){
+		printf("\n %d)  ",i);
+		printSuperblock(p);
+	}
+
 
 }
 
