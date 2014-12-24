@@ -7,7 +7,7 @@
 
 static int fd;
 
-void *getCore(unsigned int size) {
+void *getCore(size_t size) {
 
 	fd = open(MAPFILE, O_RDWR);
 

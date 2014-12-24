@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "structs.h"
 
-void *getCore(unsigned int );
+void *getCore(size_t );
 
 /*
  *    |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
@@ -35,19 +35,20 @@ void *getCore(unsigned int );
  *
  *
  */
-superblock_t* makeSuperblock(unsigned int sizeClass) {
+superblock_t* makeSuperblock(size_t sizeClass) {
 
 	block_header_t *p, *pPrev = NULL;
-	unsigned int netSuperblockSize = SUPERBLOCK_SIZE - sizeof(block_header_t);
-	unsigned int normSuperblockSize=netSuperblockSize/ sizeof(block_header_t);
+	size_t netSuperblockSize = SUPERBLOCK_SIZE - sizeof(block_header_t);
+	size_t normSuperblockSize=netSuperblockSize/ sizeof(block_header_t);
 
 
 	/* the offset between subsequent blocks in units of block_header_t */
-	unsigned int blockOffset = (sizeClass + 2 * sizeof(block_header_t) - 1)
+	size_t blockOffset = (sizeClass + 2 * sizeof(block_header_t) - 1)
 			/ sizeof(block_header_t);
 
 	/* the number of blocks that we'll generate in this superblock */
-	unsigned int i, numberOfBlocks = normSuperblockSize  / blockOffset;
+	size_t numberOfBlocks = normSuperblockSize  / blockOffset;
+	int i;
 
 	/* call system to allocate memory */
 	superblock_t *pSb = (superblock_t*) getCore(SUPERBLOCK_SIZE);
@@ -78,11 +79,13 @@ superblock_t* makeSuperblock(unsigned int sizeClass) {
 
 }
 
+
+
 /**
  * pop a block from the top of the stack.
  * caller must call the relocateSuperBlockBack on the owning heap to update the superblock's position
  */
-void *popBlock(superblock_t *pSb){
+block_header_t *popBlock(superblock_t *pSb){
 
 	if ( !pSb->_meta._NoFreeBlks)
 		return NULL; /* no free blocks */
@@ -106,6 +109,14 @@ void *popBlock(superblock_t *pSb){
 
 }
 
+
+void *allocateFromSuperblock(superblock_t *pSb){
+	block_header_t *block=popBlock(pSb);
+
+	relocateSuperBlockBack(&pSb->_meta._pOwnerHeap->_sizeClasses[getSizeClass(pSb->_meta._sizeClass)],pSb);
+	return (void*)(block+1);
+
+}
 /**
  * push a block to the top of the stack.
  * caller must call the relocateSuperBlockAhead on the owning heap to update the superblock's position

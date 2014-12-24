@@ -1,10 +1,11 @@
 #ifndef __MTMM__H__
 #define __MTMM__H__
-
+#include <stddef.h>
 
 // The minimum allocation grain for a given object
 #define SUPERBLOCK_SIZE 65536
-
+#define NUMBER_OF_HEAPS 2
+#define GEREAL_HEAP_IX 0
 
 /*
 

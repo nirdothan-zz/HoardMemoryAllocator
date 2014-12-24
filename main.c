@@ -12,22 +12,32 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) ;
 
 void main() {
+	hoard_t *mem=getMem();
 
 
 	size_class_t sc;
 
-	superblock_t *sb1 = makeSuperblock(20000);
+	superblock_t *sb1 = makeSuperblock(1);
 	superblock_t *sb2 = makeSuperblock(20000);
 	superblock_t *sb3 = makeSuperblock(20000);
-	block_header_t *bl2, *bl=popBlock(sb1);
+	//block_header_t *bl2, *bl=popBlock(sb1);
 
-	printf("sb1=%p  sb2=%p    sb3=%p  \n",sb1,sb2,sb3);
 
-	makeSizeClass(&
-			sc,20000);
 
+
+
+
+	makeSizeClass(&(mem->_heaps[1]._sizeClasses[0]),1);
+	insertSuperBlock(&(mem->_heaps[1]._sizeClasses[0]), sb1);
+
+
+//	makeSizeClass(&sc,2);
+
+
+	//insertSuperBlock(&sc, sb1);
+	malloc(1);
+	exit(0);
 	insertSuperBlock(&sc, sb2);
-	insertSuperBlock(&sc, sb1);
 	insertSuperBlock(&sc, sb3);
 
 

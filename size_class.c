@@ -13,7 +13,7 @@ superblock_t *removeSuperblock(size_class_t*, superblock_t*);
 void printSuperblock(superblock_t *);
 void printSizeClass(size_class_t *);
 
-void makeSizeClass(size_class_t *sizeClass, unsigned int size) {
+void makeSizeClass(size_class_t *sizeClass, size_t size) {
 	sizeClass->_sizeClass = size;
 	sizeClass->_SBlkList._length = 0;
 	sizeClass->_SBlkList._first = NULL;
@@ -49,6 +49,8 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 	unsigned int i;
 	superblock_t *pSb, *pPrevSb;
 
+	superBlock->_meta._pOwnerHeap=sizeClass;
+
 	/* first node - list is empty */
 	if (sizeClass->_SBlkList._length == 0) {
 		sizeClass->_SBlkList._length++;
@@ -73,7 +75,7 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 	if (!pSb) { /* end of list */
 
 		if (pPrevSb == NULL) {
-			printf("program bug! size_class.c \n ");
+			printf("program bug! size_class.c cannot have prev==NULL \n ");
 			exit(-1);
 		}
 		/* put superblock after pPrev as last*/
@@ -102,6 +104,23 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 
 }
 
+/* find available superblock */
+
+superblock_t *findAvailableSuperblock(size_class_t *sizeClass) {
+
+	superblock_t *pSb = sizeClass->_SBlkList._first;
+	unsigned int i;
+
+	for (i=0; i< sizeClass->_SBlkList._length ; i++ ){
+		if (pSb->_meta._NoFreeBlks > 0)
+			return pSb;
+		pSb=pSb->_meta._pNxtSBlk;
+	}
+
+	/* didn't find a free block */
+	return NULL;
+}
+
 /* pop the least full superblock from the list
  *  would perform much better if we had a pointer to the last element (TBD) */
 superblock_t *popLastSuperblock(size_class_t *sizeClass) {
@@ -128,6 +147,10 @@ superblock_t *popLastSuperblock(size_class_t *sizeClass) {
  */
 void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) {
 	/* remove + insert is a temporary workaround -*/
+	if (!sizeClass){
+		printf("BUG! relocating a superblock without an owner \n");
+		exit (-1);
+	}
 	removeSuperblock(sizeClass, superBlock);
 	insertSuperBlock(sizeClass, superBlock);
 }
@@ -137,6 +160,10 @@ void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) 
  */
 void relocateSuperBlockBack(size_class_t *sizeClass, superblock_t *superBlock) {
 	/* remove + insert is a temporary workaround -*/
+	if (!sizeClass){
+		printf("BUG! relocating a superblock without an owner \n");
+		exit (-1);
+	}
 	removeSuperblock(sizeClass, superBlock);
 	insertSuperBlock(sizeClass, superBlock);
 }
