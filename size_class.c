@@ -14,7 +14,7 @@ void printSuperblock(superblock_t *);
 void printSizeClass(size_class_t *);
 
 void makeSizeClass(size_class_t *sizeClass, size_t size) {
-	sizeClass->_sizeClass = size;
+	sizeClass->_sizeClassBytes = size;
 	sizeClass->_SBlkList._length = 0;
 	sizeClass->_SBlkList._first = NULL;
 }
@@ -49,7 +49,8 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 	unsigned int i;
 	superblock_t *pSb, *pPrevSb;
 
-	superBlock->_meta._pOwnerHeap=sizeClass;
+
+
 
 	/* first node - list is empty */
 	if (sizeClass->_SBlkList._length == 0) {
@@ -57,6 +58,7 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 		sizeClass->_SBlkList._first = superBlock;
 		sizeClass->_SBlkList._first->_meta._pNxtSBlk = NULL;
 		sizeClass->_SBlkList._first->_meta._pPrvSblk = NULL;
+		sizeClass->_sizeClassBytes=superBlock->_meta._sizeClassBytes;
 
 		return;
 
@@ -208,7 +210,7 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 void printSizeClass(size_class_t *sizeClass){
 	int i;
 	superblock_t *p=sizeClass->_SBlkList._first;
-	printf("SizeClass [%d] # superblocks [%d]\n",sizeClass->_sizeClass, sizeClass->_SBlkList._length);
+	printf("SizeClass [%d] # superblocks [%d]\n",sizeClass->_sizeClassBytes, sizeClass->_SBlkList._length);
 
 	for(i=0;i< sizeClass->_SBlkList._length; i++, p=p->_meta._pNxtSBlk){
 		printf("\n %d)  ",i);

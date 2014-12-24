@@ -12,6 +12,9 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) ;
 
 void main() {
+
+
+
 	hoard_t *mem=getMem();
 
 
@@ -24,6 +27,8 @@ void main() {
 
 
 
+	    malloc(1);
+		exit(0);
 
 
 
@@ -35,8 +40,7 @@ void main() {
 
 
 	//insertSuperBlock(&sc, sb1);
-	malloc(1);
-	exit(0);
+
 	insertSuperBlock(&sc, sb2);
 	insertSuperBlock(&sc, sb3);
 

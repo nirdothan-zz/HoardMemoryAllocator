@@ -35,7 +35,7 @@ void *getCore(size_t );
  *
  *
  */
-superblock_t* makeSuperblock(size_t sizeClass) {
+superblock_t* makeSuperblock(size_t sizeClassBytes) {
 
 	block_header_t *p, *pPrev = NULL;
 	size_t netSuperblockSize = SUPERBLOCK_SIZE - sizeof(block_header_t);
@@ -43,7 +43,7 @@ superblock_t* makeSuperblock(size_t sizeClass) {
 
 
 	/* the offset between subsequent blocks in units of block_header_t */
-	size_t blockOffset = (sizeClass + 2 * sizeof(block_header_t) - 1)
+	size_t blockOffset = (sizeClassBytes + 2 * sizeof(block_header_t) - 1)
 			/ sizeof(block_header_t);
 
 	/* the number of blocks that we'll generate in this superblock */
@@ -53,7 +53,7 @@ superblock_t* makeSuperblock(size_t sizeClass) {
 	/* call system to allocate memory */
 	superblock_t *pSb = (superblock_t*) getCore(SUPERBLOCK_SIZE);
 
-	pSb->_meta._sizeClass=sizeClass;
+	pSb->_meta._sizeClassBytes=sizeClassBytes;
 	pSb->_meta._NoBlks = pSb->_meta._NoFreeBlks = numberOfBlocks;
 	pSb->_meta._pNxtSBlk = pSb->_meta._pPrvSblk = NULL;
 
@@ -113,7 +113,7 @@ block_header_t *popBlock(superblock_t *pSb){
 void *allocateFromSuperblock(superblock_t *pSb){
 	block_header_t *block=popBlock(pSb);
 
-	relocateSuperBlockBack(&pSb->_meta._pOwnerHeap->_sizeClasses[getSizeClass(pSb->_meta._sizeClass)],pSb);
+	relocateSuperBlockBack(&pSb->_meta._pOwnerHeap->_sizeClasses[getSizeClassIndex(pSb->_meta._sizeClassBytes)],pSb);
 	return (void*)(block+1);
 
 }
@@ -167,4 +167,10 @@ void printSuperblock(superblock_t *pSb){
 	}
 
 
+}
+
+/* returns the size in bytes of blocks used in superblock */
+size_t getBytesUsed(const superblock_t *pSb){
+	unsigned int usedBlocks=pSb->_meta._NoBlks-pSb->_meta._NoFreeBlks;
+	return usedBlocks * pSb->_meta._sizeClassBytes;
 }
