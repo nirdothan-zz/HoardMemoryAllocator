@@ -20,11 +20,11 @@ char *a,*b,*c;
 
 
 
-	    a=malloc(10);
+	    a=malloc(65536);
 	   b=malloc(10);
 	    c=malloc(3);
 
-	    freeme((void*)a);
+	    free((void*)a);
 
 		exit(0);
 

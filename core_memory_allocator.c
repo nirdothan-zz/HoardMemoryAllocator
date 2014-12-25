@@ -25,6 +25,14 @@ void *getCore(size_t size) {
 	return p;
 }
 
+void freeCore(void *p, size_t length){
+
+	 if (munmap(p, length) == -1) {
+
+			perror("Error freeing mapped  memory");
+			exit(-1);
+	   }
+}
 
 void closeMmap(){
 	close(fd);

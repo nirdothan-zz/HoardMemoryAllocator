@@ -68,6 +68,7 @@ superblock_t* makeSuperblock(size_t sizeClassBytes) {
 
 	/* create the initial free blocks stack inside the allocated memory buffer */
 	for (i = 0; i < numberOfBlocks - 1; i++) {
+
 		pPrev = p;
 		p += blockOffset;
 		pPrev->_pNextBlk = p;
@@ -180,3 +181,10 @@ superblock_t *getSuperblockForPtr(void *ptr){
 	block-=1;
 	return block->_pOwner;
 }
+
+/* for use with large allocations that do not use Hoard */
+superblock_t* makeDummySuperblock(superblock_t 	*pSb, size_t sizeClassBytes) {
+	pSb->_meta._sizeClassBytes=sizeClassBytes;
+	return pSb;
+}
+
