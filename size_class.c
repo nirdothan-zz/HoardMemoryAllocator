@@ -13,11 +13,12 @@ superblock_t *removeSuperblock(size_class_t*, superblock_t*);
 void printSuperblock(superblock_t *);
 void printSizeClass(size_class_t *);
 
+/*
 void makeSizeClass(size_class_t *sizeClass, size_t size) {
 	sizeClass->_sizeClassBytes = size;
 	sizeClass->_SBlkList._length = 0;
 	sizeClass->_SBlkList._first = NULL;
-}
+}*/
 
 /* put a superblock between 2 exiting superblocks or as last */
 void plantSuperBlock(superblock_t *pBefore, superblock_t *pNode,

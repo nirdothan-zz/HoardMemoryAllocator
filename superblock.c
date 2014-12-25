@@ -38,7 +38,7 @@ void *getCore(size_t );
 superblock_t* makeSuperblock(size_t sizeClassBytes) {
 
 	block_header_t *p, *pPrev = NULL;
-	size_t netSuperblockSize = SUPERBLOCK_SIZE - sizeof(block_header_t);
+	size_t netSuperblockSize = SUPERBLOCK_SIZE - sizeof(sblk_metadata_t);
 	size_t normSuperblockSize=netSuperblockSize/ sizeof(block_header_t);
 
 
@@ -171,6 +171,12 @@ void printSuperblock(superblock_t *pSb){
 
 /* returns the size in bytes of blocks used in superblock */
 size_t getBytesUsed(const superblock_t *pSb){
-	unsigned int usedBlocks=pSb->_meta._NoBlks-pSb->_meta._NoFreeBlks;
+	unsigned int usedBlocks=pSb->_meta._NoBlks - pSb->_meta._NoFreeBlks;
 	return usedBlocks * pSb->_meta._sizeClassBytes;
+}
+
+superblock_t *getSuperblockForPtr(void *ptr){
+	block_header_t *block=(block_header_t *)ptr;
+	block-=1;
+	return block->_pOwner;
 }
