@@ -208,6 +208,7 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 
 }
 
+
 void printSizeClass(size_class_t *sizeClass){
 	int i;
 	superblock_t *p=sizeClass->_SBlkList._first;
@@ -221,3 +222,27 @@ void printSizeClass(size_class_t *sizeClass){
 
 }
 
+/* this function replaces a single pointer that should be maintained for O(1) instead of O(n) performance */
+/* due to lack of time for testing, a less that optimal solution is implemented */
+superblock_t *getLastSuperblockInSizeClass(size_class_t *pSizeClass) {
+	int i;
+	superblock_t *p = pSizeClass->_SBlkList._first;
+
+	for (i = 0; i < pSizeClass->_SBlkList._length; i++, p = p->_meta._pNxtSBlk)
+		;
+	return p;
+
+}
+
+
+size_t getSizeClassIndex(size_t size){
+	double l=log(size)/log(2);
+	return ceil(l);
+
+}
+
+size_class_t *getSizeClassForSuperblock(superblock_t *pSb){
+
+	size_t i=getSizeClassIndex(pSb->_meta._sizeClassBytes);
+	return &(pSb->_meta._pOwnerHeap->_sizeClasses[i]);
+}

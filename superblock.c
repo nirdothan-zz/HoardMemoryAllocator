@@ -11,7 +11,7 @@
 #include "structs.h"
 
 void *getCore(size_t );
-
+size_t getBytesUsed(const superblock_t *);
 /*
  *    |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
  *    |																															|
@@ -159,12 +159,12 @@ unsigned short getFullness(superblock_t *pSb){
 void printSuperblock(superblock_t *pSb){
 	unsigned int i;
 	block_header_t *p=pSb->_meta._pFreeBlkStack;
-	printf("  Superblock: [%p] blocks: [%d] free [%d]\n", pSb, pSb->_meta._NoBlks, pSb->_meta._NoFreeBlks);
+	printf("  Superblock: [%p] blocks: [%u] free [%u] used bytes [%u]\n", pSb, pSb->_meta._NoBlks, pSb->_meta._NoFreeBlks,getBytesUsed(pSb));
 	printf("	[%p]<----prev    next---->[%p]\n",  pSb->_meta._pPrvSblk, pSb->_meta._pNxtSBlk);
 	printf("	====================================\n");
 
 	for(i=0; i< pSb->_meta._NoFreeBlks; i++, p=p->_pNextBlk){
-		printf("		free block %d) [%p]\n",i,p);
+		printf("		free block %u) [%p]\n",i,p);
 	}
 
 
@@ -172,14 +172,18 @@ void printSuperblock(superblock_t *pSb){
 
 /* returns the size in bytes of blocks used in superblock */
 size_t getBytesUsed(const superblock_t *pSb){
-	unsigned int usedBlocks=pSb->_meta._NoBlks - pSb->_meta._NoFreeBlks;
+	size_t usedBlocks=pSb->_meta._NoBlks - pSb->_meta._NoFreeBlks;
 	return usedBlocks * pSb->_meta._sizeClassBytes;
 }
 
+block_header_t *getBlockHeaderForPtr(void *ptr){
+	block_header_t *pBlock=(block_header_t *)ptr;
+	pBlock-=1;
+	return pBlock;
+}
+
 superblock_t *getSuperblockForPtr(void *ptr){
-	block_header_t *block=(block_header_t *)ptr;
-	block-=1;
-	return block->_pOwner;
+	return (getBlockHeaderForPtr(ptr))->_pOwner;
 }
 
 /* for use with large allocations that do not use Hoard */
@@ -188,3 +192,10 @@ superblock_t* makeDummySuperblock(superblock_t 	*pSb, size_t sizeClassBytes) {
 	return pSb;
 }
 
+void freeBlockFromSuperBlock(superblock_t *pSb, block_header_t *pBlock){
+
+	if (!pushBlock(pSb,pBlock))
+		printf("Error freeing memory!\n");
+
+
+}
