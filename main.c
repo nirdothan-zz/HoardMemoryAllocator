@@ -22,9 +22,11 @@ char *a,*b,*c;
 
 	    a=malloc(65536);
 	   b=malloc(10);
-	    c=malloc(3);
+	    c=malloc(10);
 
 	    free((void*)a);
+	    free((void*)b);
+	    free((void*)c);
 
 		exit(0);
 
