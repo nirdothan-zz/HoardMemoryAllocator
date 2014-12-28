@@ -36,9 +36,9 @@ malloc (sz)
 16. s.u ← s.u + sz.
 17. Unlock heap i.
 18. Return a block from the superblock.
-*/
-void * malloc (size_t sz);
 
+void * malloc (size_t sz);
+*/
 
 /*
 
@@ -62,7 +62,7 @@ to heap 0 (the global heap).
 11. u 0 ← u 0 + s1.u, u i ← u i − s1.u
 12. a 0 ← a 0 + S, a i ← a i − S
 13. Unlock heap i and the superblock.
-*/
+
 void free (void * ptr) ;
 
 
@@ -80,9 +80,9 @@ call to malloc(), calloc() or realloc(). If the area pointed to was moved, a fre
 1. allocate sz bytes
 2. copy from old location to a new one
 3. free old allocation
-*/
-void * realloc (void * ptr, size_t sz) ;
 
+void * realloc (void * ptr, size_t sz) ;
+*/
 
 
 #endif

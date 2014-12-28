@@ -6,19 +6,11 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "structs.h"
+#include "memory_allocator.h"
 
-unsigned short getFullness(superblock_t*);
-superblock_t *removeSuperblock(size_class_t*, superblock_t*);
-void printSuperblock(superblock_t *);
-void printSizeClass(size_class_t *);
 
-/*
-void makeSizeClass(size_class_t *sizeClass, size_t size) {
-	sizeClass->_sizeClassBytes = size;
-	sizeClass->_SBlkList._length = 0;
-	sizeClass->_SBlkList._first = NULL;
-}*/
+
+
 
 /* put a superblock between 2 exiting superblocks or as last */
 void plantSuperBlock(superblock_t *pBefore, superblock_t *pNode,
@@ -201,7 +193,6 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 			pNextSb->_meta._pPrvSblk = pPrevSb;
 
 	}
-
 	sizeClass->_SBlkList._length--;
 	superBlock->_meta._pNxtSBlk = superBlock->_meta._pPrvSblk = NULL;
 	return superBlock;
@@ -228,7 +219,7 @@ superblock_t *getLastSuperblockInSizeClass(size_class_t *pSizeClass) {
 	int i;
 	superblock_t *p = pSizeClass->_SBlkList._first;
 
-	for (i = 0; i < pSizeClass->_SBlkList._length; i++, p = p->_meta._pNxtSBlk)
+	for (i = 1; i < pSizeClass->_SBlkList._length; i++, p = p->_meta._pNxtSBlk)
 		;
 	return p;
 

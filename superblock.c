@@ -7,10 +7,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "structs.h"
+#include "memory_allocator.h"
 
-void *getCore(size_t);
-size_t getBytesUsed(const superblock_t *);
 /*
  *    |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
  *    |																															|
@@ -170,8 +168,7 @@ size_t getBytesUsed(const superblock_t *pSb) {
 }
 
 block_header_t *getBlockHeaderForPtr(void *ptr) {
-	block_header_t *pBlock = (block_header_t *) ptr;
-	pBlock -= 1;
+	block_header_t *pBlock = (block_header_t *)( ptr - sizeof(block_header_t));
 	return pBlock;
 }
 
