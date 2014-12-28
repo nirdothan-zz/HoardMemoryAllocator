@@ -12,9 +12,9 @@
 /*
  *    |+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
  *    |																															|
- *    |	<--------------------------------------------SUPERBLOCK_SIZE----------------------------------------------------------> |
+ *    |	<--------------------------------------------SUPERBLOCK_SIZE + sizeof(sblk_metadata_t)--------------------------------> |
  *    |																															|
- *    |	   sblk_metadata_t   |<--------------------------	SUPERBLOCK_SIZE -sizeof(sblk_metadata_t)--------------------------> |
+ *    |	   sblk_metadata_t   |<--------------------------	SUPERBLOCK_SIZE -----------------------)--------------------------> |
  *    |				         |                                                                                                  |
  *    |				         |                                                                                                  |
  *    |				         |__________________________________________                                                        |
@@ -32,22 +32,22 @@
  *
  *
  */
+
 superblock_t* makeSuperblock(size_t sizeClassBytes) {
 
 	block_header_t *p, *pPrev = NULL;
-	size_t netSuperblockSize = SUPERBLOCK_SIZE - sizeof(sblk_metadata_t);
+	size_t netSuperblockSize = SUPERBLOCK_SIZE;
 	size_t normSuperblockSize = netSuperblockSize / sizeof(block_header_t);
 
 	/* the offset between subsequent blocks in units of block_header_t */
-	size_t blockOffset = (sizeClassBytes + 2 * sizeof(block_header_t) - 1)
-			/ sizeof(block_header_t);
+	size_t blockOffset = getBlockActualSizeInHeaders(sizeClassBytes);
 
 	/* the number of blocks that we'll generate in this superblock */
 	size_t numberOfBlocks = normSuperblockSize / blockOffset;
 	int i;
 
 	/* call system to allocate memory */
-	superblock_t *pSb = (superblock_t*) getCore(SUPERBLOCK_SIZE);
+	superblock_t *pSb = (superblock_t*) getCore(SUPERBLOCK_SIZE + sizeof(sblk_metadata_t));
 
 	pSb->_meta._sizeClassBytes = sizeClassBytes;
 	pSb->_meta._NoBlks = pSb->_meta._NoFreeBlks = numberOfBlocks;
@@ -164,7 +164,7 @@ void printSuperblock(superblock_t *pSb) {
 /* returns the size in bytes of blocks used in superblock */
 size_t getBytesUsed(const superblock_t *pSb) {
 	size_t usedBlocks = pSb->_meta._NoBlks - pSb->_meta._NoFreeBlks;
-	return usedBlocks * pSb->_meta._sizeClassBytes;
+	return usedBlocks * ( getBlockActualSizeInBytes(pSb->_meta._sizeClassBytes));
 }
 
 block_header_t *getBlockHeaderForPtr(void *ptr) {
@@ -189,3 +189,14 @@ void freeBlockFromSuperBlock(superblock_t *pSb, block_header_t *pBlock) {
 		printf("Error freeing memory!\n");
 
 }
+/* the offset between subsequent blocks in units of block_header_t */
+size_t getBlockActualSizeInHeaders(size_t sizeClassBytes){
+	return (sizeClassBytes + 2 * sizeof(block_header_t) - 1)
+			/ sizeof(block_header_t);
+
+}
+
+size_t getBlockActualSizeInBytes(size_t sizeClassBytes){
+	return getBlockActualSizeInHeaders(sizeClassBytes)*sizeof(block_header_t);
+}
+
