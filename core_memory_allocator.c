@@ -9,6 +9,7 @@ static int fd;
 
 void *getCore(size_t size) {
 
+
 	fd = open(MAPFILE, O_RDWR);
 
    if (fd == -1) {

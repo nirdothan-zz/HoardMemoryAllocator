@@ -4,8 +4,7 @@
  *  Created on: Dec 19, 2014
  *      Author: Nir Dothan 028434009
  */
-#include <stdio.h>
-#include <stdlib.h>
+
 #include "memory_allocator.h"
 
 
@@ -143,7 +142,7 @@ superblock_t *popLastSuperblock(size_class_t *sizeClass) {
 void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) {
 	/* remove + insert is a temporary workaround -*/
 	if (!sizeClass){
-		printf("BUG! relocating a superblock without an owner \n");
+		perror("BUG! relocating a superblock without an owner \n");
 		exit (-1);
 	}
 	removeSuperblock(sizeClass, superBlock);
@@ -156,7 +155,7 @@ void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) 
 void relocateSuperBlockBack(size_class_t *sizeClass, superblock_t *superBlock) {
 	/* remove + insert is a temporary workaround -*/
 	if (!sizeClass){
-		printf("BUG! relocating a superblock without an owner \n");
+		perror("BUG! relocating a superblock without an owner \n");
 		exit (-1);
 	}
 	removeSuperblock(sizeClass, superBlock);

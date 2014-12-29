@@ -5,8 +5,7 @@
  *      Author: Nir Dothan 028434009
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+
 #include "memory_allocator.h"
 
 /*

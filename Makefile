@@ -1,33 +1,25 @@
-CC :- gcc
-program_NAME := main
-program_C_SRCS := $(wildcard *.c)
-program_C_OBJS := ${program_C_SRCS:.c=.o}
-program_OBJS := $(program_C_OBJS)
-program_LIBRARY_DIRS :=
-program_LIBRARIES :=
-MY_LIBRARIES := libmtmm.a
+CC=gcc
+
+TARGET = linux-scalability
+
 MYFLAGS =  -g -O0 -Wall -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 
-LDFLAGS += $(foreach librarydir,$(program_LIBRARY_DIRS),-L$(librarydir))
-LDFLAGS += $(foreach library,$(program_LIBRARIES),-l$(library))
-
-.PHONY: all clean distclean
-
-all: $(program_NAME) 
+# uncomment this to link with hoard memory allicator
+MYLIBS = libmtmm.a
 
 
-$(program_NAME): $(program_OBJS) libmtmm.a
-	$(CC) $(CCFLAGS) $(MYFLAGS) libmtmm.a -o $(program_NAME) -lpthread -lm
+all: $(TARGET) $(MYLIBS)
+#all: libSimpleMTMM.a $(TARGET)
 
-libmtmm.a:  $(program_OBJS)
-	$(CC) $(MYFLAGS) -c memory_allocator.c -lpthread -lm
-	ar rcu libmtmm.a  $(program_OBJS)
+
+libmtmm.a:
+	$(CC) $(MYFLAGS) -c core_memory_allocator.c cpu_heap.c memory_allocator.c size_class.c superblock.c
+	ar rcu libmtmm.a core_memory_allocator.o cpu_heap.o memory_allocator.o size_class.o superblock.o
 	ranlib libmtmm.a
 
 
-clean:
-	@- $(RM) $(program_NAME)
-	@- $(RM) $(program_OBJS)
-	@- $(RM) $(MY_LIBRARIES)
+$(TARGET): $(TARGET).c libmtmm.a
+	$(CC) $(CCFLAGS) $(MYFLAGS) $(TARGET).c libmtmm.a -o $(TARGET) -lpthread -lm
 
-distclean: clean
+clean:
+	rm -f $(TARGET)  *.o  libmtmm.a
