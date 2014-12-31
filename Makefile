@@ -12,7 +12,7 @@ all: $(TARGET) $(MYLIBS)
 #all: libSimpleMTMM.a $(TARGET)
 
 
-libmtmm.a:
+libmtmm.a: core_memory_allocator.c cpu_heap.c memory_allocator.c size_class.c superblock.c
 	$(CC) $(MYFLAGS) -c core_memory_allocator.c cpu_heap.c memory_allocator.c size_class.c superblock.c
 	ar rcu libmtmm.a core_memory_allocator.o cpu_heap.o memory_allocator.o size_class.o superblock.o
 	ranlib libmtmm.a

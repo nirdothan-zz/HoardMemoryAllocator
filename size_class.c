@@ -3,6 +3,10 @@
  *
  *  Created on: Dec 19, 2014
  *      Author: Nir Dothan 028434009
+ *
+ *      This module implements functions to perform various operations at size class level
+ *      such as insertions, removal and searches for superblocks from a given sizeclass
+ *
  */
 
 #include "memory_allocator.h"

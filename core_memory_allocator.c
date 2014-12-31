@@ -1,7 +1,18 @@
+/*
+ * core_memory_allocator.c
+ *
+ *  Created on: Dec 18, 2014
+ *      Author: Nir Dothan 028434009
+ *
+ *      This module allocates and free memory from the system by mapping and unmapping annonymus files to virtual memory
+ */
+
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+
 
 #define MAPFILE "/dev/zero"
 

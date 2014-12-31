@@ -3,6 +3,8 @@
  *
  *  Created on: Dec 18, 2014
  *      Author: Nir Dothan 028434009
+ *
+ *      This module creates and handles everything that occurs at the superblock level or inside it i.e. the blocks
  */
 
 

@@ -2,7 +2,9 @@
  * cpu_heap.c
  *
  *  Created on: Dec 23, 2014
- *      Author: student
+ *     Author: Nir Dothan 028434009
+ *
+ *     This module implements functions that performs various operations at a single CPU heap level
  */
 
 

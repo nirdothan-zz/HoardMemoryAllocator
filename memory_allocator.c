@@ -1,3 +1,12 @@
+/*
+ * malloc_allocator.c
+ *
+ *  Created on: Dec 19, 2014
+ *      Author: Nir Dothan 028434009
+ *
+ *      This is the central module of memory allocator implementing malloc, free and a few helper functions
+ *
+ */
 
 #include "memory_allocator.h"
 
@@ -15,7 +24,9 @@ static char isMutexInit;
 
 
 
-
+/*
+ * calculate hashed heap ID - returns either 1 or 2
+ */
 int getHeapID() {
 	int heapid;
 	pthread_t self;
@@ -26,6 +37,9 @@ int getHeapID() {
 
 }
 
+/*
+ * initalize the heap level mutexes
+ */
 void initMutexes() {
 	int i;
 	for (i = 0; i < NUMBER_OF_HEAPS + 1; i++)
@@ -120,14 +134,12 @@ void * malloc(size_t sz) {
 		/* superblock of relevant size class was found in general heap
 		 * relocate it to private heap step #10
 		 */
-		//pthread_mutex_unlock(&heapLocks[heapIndex]);
-	//	pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
+
 		/* #11 #13 */
 		pthread_mutex_lock(&(pSb->_meta._sbLock));
 		removeSuperblockFromHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 				sizeClassIndex, pSb);
-	//	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
-	//	pthread_mutex_lock(&heapLocks[heapIndex]);
+
 		/* #12 #14 */
 		addSuperblockToHeap(&(memory._heaps[heapIndex]), sizeClassIndex, pSb);
 		pthread_mutex_unlock(&(pSb->_meta._sbLock));
@@ -264,19 +276,17 @@ void free(void *ptr) {
 
 
 			/* #11 #12 */
+			pthread_mutex_lock(&(pSbToRelocate->_meta._sbLock));
 			removeSuperblockFromHeap(pHeap, sizeClassIndex, pSbToRelocate);
-		//	pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
-			/* pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);			 */
-//			pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
+
 			/* #11 #12 */
 
 			addSuperblockToHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 					sizeClassIndex, pSbToRelocate);
+			pthread_mutex_unlock(&(pSbToRelocate->_meta._sbLock));
 			memory._heaps[GEREAL_HEAP_IX]._CpuId=0;
-//	    	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
 
-		} else {
-	//		pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
+
 		}
 	}
 
