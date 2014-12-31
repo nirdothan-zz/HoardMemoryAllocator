@@ -13,6 +13,10 @@ void removeSuperblockFromHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *p
 
 	size_class_t *pSizeClass=&(heap->_sizeClasses[sizeClass_ix]);
 
+	if(!pSizeClass){
+		printf("NULL size class\n");
+		exit(-1);
+	}
 	removeSuperblock(pSizeClass,pSb);
 
 	/* disown the superblock */
@@ -43,7 +47,15 @@ void addSuperblockToHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *pSb){
 
 	size_class_t *pSizeClass=&(heap->_sizeClasses[sizeClass_ix]);
 
+if (!pSizeClass){
+	printf("NULL size class!");
+	exit(-1);
+}
 
+if (!heap){
+	printf("NULL heap added!");
+	exit(-1);
+}
 	insertSuperBlock(pSizeClass,pSb);
 
 	/* make this heap the owner*/
@@ -57,6 +69,7 @@ void addSuperblockToHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *pSb){
 }
 
 void *allocateBlockFromHeap(cpuheap_t *heap, superblock_t *pSb){
+
 
 	void *p=allocateFromSuperblock(pSb);
 	/* update heap level stats */
@@ -119,12 +132,14 @@ superblock_t *findMostlyEmptySuperblock(cpuheap_t *pHeap){
 	int i;
 	size_t freeBytesRequirement=getUnderutilizedBytes(pHeap);
 
+
+
+
 	for (i=0; i<NUMBER_OF_SIZE_CLASSES; i++){
 		superblock_t *p=getLastSuperblockInSizeClass(&(pHeap->_sizeClasses[i]));
 		if (!p) /* size class empty */
 			continue;
 		size_t freeBytes=p->_meta._NoFreeBlks* getBlockActualSizeInBytes(p->_meta._sizeClassBytes);
-
 		if (freeBytes >= freeBytesRequirement)
 			return p;
 	}

@@ -6,9 +6,13 @@
 #include <math.h>
 #include <stdio.h>
 
+
+
 static hoard_t memory;
 static pthread_mutex_t heapLocks[NUMBER_OF_HEAPS + 1];
 static char isMutexInit;
+
+
 
 
 
@@ -16,7 +20,7 @@ int getHeapID() {
 	int heapid;
 	pthread_t self;
 	self = pthread_self();
-	heapid = self % 2;
+	heapid = (self % 7) % 2;
 	heapid++; /* 0 is reserved for general heap so we add 1 */
 	return heapid;
 
@@ -68,8 +72,9 @@ void * malloc(size_t sz) {
 	superblock_t *pSb;
 	void *p;
 
-	/*putchar('M');*/
-	/*printf("malloc\n");*/
+
+
+
 	/* #1 */
 	if (sz > SUPERBLOCK_SIZE / 2) {
 		/* in order to identify that this block is large when we free it,
@@ -105,6 +110,7 @@ void * malloc(size_t sz) {
 			&(memory._heaps[heapIndex]._sizeClasses[sizeClassIndex]));
 	/* superblock of relevant size class was found in private heap */
 
+
 	/* #5 && #6 */
 	if (!pSb
 			&& (pSb =
@@ -114,15 +120,16 @@ void * malloc(size_t sz) {
 		/* superblock of relevant size class was found in general heap
 		 * relocate it to private heap step #10
 		 */
-		pthread_mutex_unlock(&heapLocks[heapIndex]);
+		//pthread_mutex_unlock(&heapLocks[heapIndex]);
 		pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
 		/* #11 #13 */
 		removeSuperblockFromHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 				sizeClassIndex, pSb);
 		pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
-		pthread_mutex_lock(&heapLocks[heapIndex]);
+	//	pthread_mutex_lock(&heapLocks[heapIndex]);
 		/* #12 #14 */
 		addSuperblockToHeap(&(memory._heaps[heapIndex]), sizeClassIndex, pSb);
+
 	}
 
 	/* #7 */
@@ -135,19 +142,35 @@ void * malloc(size_t sz) {
 		/*#8*/
 		addSuperblockToHeap(&(memory._heaps[heapIndex]), sizeClassIndex, pSb);
 
+
 	}
 
 	/* #15, #16 */
-	p = allocateBlockFromHeap(&(memory._heaps[heapIndex]), pSb);
-
-	pthread_mutex_unlock(&heapLocks[heapIndex]);
-
 	/* this is redundant, but there is no init for heap */
 	if (memory._heaps[heapIndex]._CpuId != heapIndex)
 		memory._heaps[heapIndex]._CpuId = heapIndex;
 
 
+	p = allocateBlockFromHeap(&(memory._heaps[heapIndex]), pSb);
 
+
+
+
+	block_header_t *pBlockDEB= getBlockHeaderForPtr(p);
+
+	superblock_t *pSbDEB = pBlockDEB->_pOwner;
+
+
+		if (!pSbDEB->_meta._pOwnerHeap){
+
+			printf(" NULL superblock owner allocated ");
+			printf(" %u  %p  %u\n",pBlockDEB->size,pBlockDEB->_pNextBlk,heapIndex);
+			printSizeClass(&(memory._heaps[heapIndex]._sizeClasses[sizeClassIndex] ));
+			exit(-1);
+
+		}
+
+		pthread_mutex_unlock(&heapLocks[heapIndex]);
 
 	return p;
 
@@ -180,12 +203,14 @@ void free(void *ptr) {
 
 	cpuheap_t *pHeap;
 	block_header_t *pBlock;
-	/*putchar('F');*/
 
-	if (!ptr)
+
+	if (!ptr){
 		return;
+	}
 
 	pBlock= getBlockHeaderForPtr(ptr);
+
 
 
 	/* #1 */
@@ -195,14 +220,26 @@ void free(void *ptr) {
 	}
 
 	superblock_t *pSb = pBlock->_pOwner;
+
 	/* #3 */
 	pHeap = pSb->_meta._pOwnerHeap;
 
+
 	/* #4 */
 	pthread_mutex_lock(&heapLocks[pHeap->_CpuId]);
+	if (!pHeap){
+
+			printf(" NULL superblock owner locked wrong heap");
+			printf(" %u  %p \n",pBlock->size,pBlock->_pNextBlk);
+			exit(-1);
+
+		}
+
+
 
 	/* #5, #6, #7 */
 	freeBlockFromHeap(pHeap, pBlock);
+
 
 	/* #8 */
 	if (pHeap->_CpuId == GEREAL_HEAP_IX) {
@@ -210,20 +247,31 @@ void free(void *ptr) {
 		return;
 	}
 	/* #9 */
+
 	if (isHeapUnderUtilized(pHeap)) {
 		superblock_t *pSbToRelocate = findMostlyEmptySuperblock(pHeap);
 
+
 		/* #10 */
-		if (pSbToRelocate) {
+		if (pSbToRelocate ) {
 			size_t sizeClassIndex = getSizeClassIndex(
-					pSb->_meta._sizeClassBytes);
+					pSbToRelocate->_meta._sizeClassBytes);
+
+
+			/* #11 #12 */
+			removeSuperblockFromHeap(pHeap, sizeClassIndex, pSbToRelocate);
+		//	pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
+			/* pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);			 */
+			pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
 			/* #11 #12 */
 
-			removeSuperblockFromHeap(pHeap, sizeClassIndex, pSbToRelocate);
-			/* #11 #12 */
 			addSuperblockToHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 					sizeClassIndex, pSbToRelocate);
+			memory._heaps[GEREAL_HEAP_IX]._CpuId=0;
+	    	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
 
+		} else {
+	//		pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
 		}
 	}
 

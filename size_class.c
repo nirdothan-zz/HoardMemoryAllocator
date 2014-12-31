@@ -45,7 +45,7 @@ void insertSuperBlock(size_class_t *sizeClass, superblock_t *superBlock) {
 
 
 	/* first node - list is empty */
-	if (sizeClass->_SBlkList._length == 0) {
+	if (sizeClass->_SBlkList._length == 0 || sizeClass->_SBlkList._first==NULL) {
 		sizeClass->_SBlkList._length++;
 		sizeClass->_SBlkList._first = superBlock;
 		sizeClass->_SBlkList._first->_meta._pNxtSBlk = NULL;
@@ -145,6 +145,7 @@ void relocateSuperBlockAhead(size_class_t *sizeClass, superblock_t *superBlock) 
 		perror("BUG! relocating a superblock without an owner \n");
 		exit (-1);
 	}
+
 	removeSuperblock(sizeClass, superBlock);
 	insertSuperBlock(sizeClass, superBlock);
 }
@@ -158,6 +159,7 @@ void relocateSuperBlockBack(size_class_t *sizeClass, superblock_t *superBlock) {
 		perror("BUG! relocating a superblock without an owner \n");
 		exit (-1);
 	}
+
 	removeSuperblock(sizeClass, superBlock);
 	insertSuperBlock(sizeClass, superBlock);
 }
@@ -166,8 +168,15 @@ void relocateSuperBlockBack(size_class_t *sizeClass, superblock_t *superBlock) {
 superblock_t *removeSuperblock(size_class_t *sizeClass,
 		superblock_t *superBlock) {
 
+
+
 	superblock_t *pPrevSb = superBlock->_meta._pPrvSblk;
 	superblock_t *pNextSb = superBlock->_meta._pNxtSBlk;
+
+	if (sizeClass->_SBlkList._length==0){
+		printf("trying to remove from empty size class\n");
+		exit(-1);
+	}
 
 	if (sizeClass->_SBlkList._first == superBlock) {/* it's first */
 
@@ -181,7 +190,8 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 	} else { /* not first */
 
 		if (pPrevSb == NULL) {
-			printf("program bug! size_class.c \n ");
+
+			printf("program bug! size_class.c  first [%p] next [%p] length [%u] heap [%u]\n ",sizeClass->_SBlkList._first, superBlock->_meta._pNxtSBlk, sizeClass->_SBlkList._length, superBlock->_meta._pOwnerHeap->_CpuId);
 			exit(-1);
 		}
 		/* prev points to next */
@@ -194,6 +204,7 @@ superblock_t *removeSuperblock(size_class_t *sizeClass,
 	}
 	sizeClass->_SBlkList._length--;
 	superBlock->_meta._pNxtSBlk = superBlock->_meta._pPrvSblk = NULL;
+
 	return superBlock;
 
 }

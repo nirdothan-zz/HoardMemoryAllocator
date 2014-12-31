@@ -5,14 +5,16 @@
 
 
 
-void main() {
+void mainer() {
 
 
 char *a,*b,*c;
 int i;
 void *arr[1000];
-for (i=0; i<1000;i++){
+for (i=0; i<10;i++){
 	size_t sz=i%50+1;
+
+	sz=50;
 	/*printf("%d allocating %u\n",i,sz);*/
 	putchar('A');
 	putchar('\n');
@@ -25,7 +27,7 @@ for (i=0; i<1000;i++){
 
 
 }
-for (i=0; i<1000;i++){
+for (i=0; i<10;i++){
 	/*printf("%d freeing\n",i);*/
 	putchar('D');
 	putchar('\n');
