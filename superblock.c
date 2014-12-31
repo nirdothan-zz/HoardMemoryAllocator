@@ -73,6 +73,8 @@ superblock_t* makeSuperblock(size_t sizeClassBytes) {
 		p->_pNextBlk = NULL;
 	}
 
+	pthread_mutex_init(&(pSb->_meta._sbLock),NULL);
+
 	return pSb;
 
 }

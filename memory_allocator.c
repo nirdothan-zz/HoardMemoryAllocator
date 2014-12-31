@@ -1,7 +1,7 @@
 
 #include "memory_allocator.h"
 
-#include <pthread.h>
+
 #include <stdint.h>
 #include <math.h>
 #include <stdio.h>
@@ -121,14 +121,16 @@ void * malloc(size_t sz) {
 		 * relocate it to private heap step #10
 		 */
 		//pthread_mutex_unlock(&heapLocks[heapIndex]);
-		pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
+	//	pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
 		/* #11 #13 */
+		pthread_mutex_lock(&(pSb->_meta._sbLock));
 		removeSuperblockFromHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 				sizeClassIndex, pSb);
-		pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
+	//	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
 	//	pthread_mutex_lock(&heapLocks[heapIndex]);
 		/* #12 #14 */
 		addSuperblockToHeap(&(memory._heaps[heapIndex]), sizeClassIndex, pSb);
+		pthread_mutex_unlock(&(pSb->_meta._sbLock));
 
 	}
 
@@ -220,13 +222,16 @@ void free(void *ptr) {
 	}
 
 	superblock_t *pSb = pBlock->_pOwner;
+	pthread_mutex_lock(&(pSb->_meta._sbLock));
 
 	/* #3 */
 	pHeap = pSb->_meta._pOwnerHeap;
 
 
 	/* #4 */
+	pthread_mutex_unlock(&(pSb->_meta._sbLock));
 	pthread_mutex_lock(&heapLocks[pHeap->_CpuId]);
+
 	if (!pHeap){
 
 			printf(" NULL superblock owner locked wrong heap");
@@ -262,13 +267,13 @@ void free(void *ptr) {
 			removeSuperblockFromHeap(pHeap, sizeClassIndex, pSbToRelocate);
 		//	pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
 			/* pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);			 */
-			pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
+//			pthread_mutex_lock(&heapLocks[GEREAL_HEAP_IX]);
 			/* #11 #12 */
 
 			addSuperblockToHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 					sizeClassIndex, pSbToRelocate);
 			memory._heaps[GEREAL_HEAP_IX]._CpuId=0;
-	    	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
+//	    	pthread_mutex_unlock(&heapLocks[GEREAL_HEAP_IX]);
 
 		} else {
 	//		pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
