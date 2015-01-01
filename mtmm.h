@@ -1,3 +1,14 @@
+/*
+ * mtmm.h
+ *
+ *
+ *  Created on: Dec 18, 2014
+ *      Author: Nir Dothan 028434009
+ *
+ *      provided with exercise. includes some new constants
+ */
+
+
 #ifndef __MTMM__H__
 #define __MTMM__H__
 #include <stddef.h>

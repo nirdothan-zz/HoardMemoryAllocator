@@ -97,6 +97,10 @@ void * malloc(size_t sz) {
 
 		/* allocate memory to satisfy the large request and overheads*/
 		block_header_t *p = getCore(sz + sizeof(block_header_t));
+		if (!p){
+			/* memory allocation failed*/
+			return NULL;
+		}
 		/* the dummy superblock goes first*/
 		p->size = sz;
 		p++;
@@ -136,7 +140,7 @@ void * malloc(size_t sz) {
 		 */
 
 		/* #11 #13 */
-		pthread_mutex_lock(&(pSb->_meta._sbLock));
+        pthread_mutex_lock(&(pSb->_meta._sbLock));
 		removeSuperblockFromHeap(&(memory._heaps[GEREAL_HEAP_IX]),
 				sizeClassIndex, pSb);
 
@@ -165,7 +169,7 @@ void * malloc(size_t sz) {
 		memory._heaps[heapIndex]._CpuId = heapIndex;
 
 
-	p = allocateBlockFromHeap(&(memory._heaps[heapIndex]), pSb);
+	p = allocateBlockFromCurrentHeap(pSb);
 
 
 
@@ -241,21 +245,27 @@ void free(void *ptr) {
 
 
 	/* #4 */
+
 	pthread_mutex_unlock(&(pSb->_meta._sbLock));
 	pthread_mutex_lock(&heapLocks[pHeap->_CpuId]);
 
-	if (!pHeap){
+	if (pHeap!= pSb->_meta._pOwnerHeap){
+		/* we've locked the wrong heap - the superblock has moved
+		 * unlock and relock the uptodate heap*/
+		pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
+		pHeap=pSb->_meta._pOwnerHeap;
+		pthread_mutex_lock(&heapLocks[pHeap->_CpuId]);
+		if (pHeap!= pSb->_meta._pOwnerHeap){
+				printf("heap changed again!\n");
+			}
+	}
 
-			printf(" NULL superblock owner locked wrong heap");
-			printf(" %u  %p \n",pBlock->size,pBlock->_pNextBlk);
-			exit(-1);
 
-		}
 
 
 
 	/* #5, #6, #7 */
-	freeBlockFromHeap(pHeap, pBlock);
+	freeBlockFromCurrentHeap(pBlock);
 
 
 	/* #8 */

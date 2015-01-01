@@ -22,7 +22,10 @@ void removeSuperblockFromHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *p
 	removeSuperblock(pSizeClass,pSb);
 
 	/* disown the superblock */
-	pSb->_meta._pOwnerHeap=NULL;
+	//TODO return to NULL
+	static cpuheap_t dumb;
+	dumb._CpuId=99;
+	pSb->_meta._pOwnerHeap=&dumb;
 
 
 	/*
@@ -70,8 +73,8 @@ if (!heap){
 
 }
 
-void *allocateBlockFromHeap(cpuheap_t *heap, superblock_t *pSb){
-
+void *allocateBlockFromCurrentHeap( superblock_t *pSb){
+	/*new 01012015 */cpuheap_t *heap=pSb->_meta._pOwnerHeap;
 
 	void *p=allocateFromSuperblock(pSb);
 	/* update heap level stats */
@@ -81,7 +84,8 @@ void *allocateBlockFromHeap(cpuheap_t *heap, superblock_t *pSb){
 
 }
 
-void freeBlockFromHeap(cpuheap_t *pHeap,  block_header_t *pBlock) {
+void freeBlockFromCurrentHeap( block_header_t *pBlock) {
+	/*new 01012015 */cpuheap_t *pHeap=pBlock->_pOwner->_meta._pOwnerHeap;
 	size_class_t *pSizeClass=getSizeClassForSuperblock(pBlock->_pOwner);
 	/* free the block and
 	/* 7. s.u ← s.u − block size. */

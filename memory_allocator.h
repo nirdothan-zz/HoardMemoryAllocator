@@ -1,8 +1,11 @@
 /*
  * meory_allocator.h
  *
- *  Created on: Dec 28, 2014
- *      Author: student
+ *
+ *  Created on: Dec 18, 2014
+ *      Author: Nir Dothan 028434009
+ *
+ *      function prototypes
  */
 
 #include "structs.h"
@@ -28,8 +31,8 @@ superblock_t* makeDummySuperblock(superblock_t *pSb, size_t sizeClassBytes) ;
 void freeBlockFromSuperBlock(superblock_t *pSb, block_header_t *pBlock) ;
 void removeSuperblockFromHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *pSb);
 void addSuperblockToHeap(cpuheap_t *heap, int sizeClass_ix, superblock_t *pSb);
-void *allocateBlockFromHeap(cpuheap_t *heap, superblock_t *pSb);
-void freeBlockFromHeap(cpuheap_t *pHeap,  block_header_t *pBlock);
+void *allocateBlockFromCurrentHeap( superblock_t *pSb);
+void freeBlockFromCurrentHeap( block_header_t *pBlock);
 char isHeapUnderUtilized(cpuheap_t *pHeap);
 size_t getUnderutilizedBytes(cpuheap_t *pHeap);
 superblock_t *findMostlyEmptySuperblock(cpuheap_t *pHeap);
