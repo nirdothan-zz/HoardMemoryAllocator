@@ -169,24 +169,7 @@ void * malloc(size_t sz) {
 		memory._heaps[heapIndex]._CpuId = heapIndex;
 
 
-	p = allocateBlockFromCurrentHeap(pSb);
-
-
-
-
-	block_header_t *pBlockDEB= getBlockHeaderForPtr(p);
-
-	superblock_t *pSbDEB = pBlockDEB->_pOwner;
-
-
-		if (!pSbDEB->_meta._pOwnerHeap){
-
-			printf(" NULL superblock owner allocated ");
-			printf(" %u  %p  %u\n",pBlockDEB->size,pBlockDEB->_pNextBlk,heapIndex);
-			printSizeClass(&(memory._heaps[heapIndex]._sizeClasses[sizeClassIndex] ));
-			exit(-1);
-
-		}
+	     p = allocateBlockFromCurrentHeap(pSb);
 
 		pthread_mutex_unlock(&heapLocks[heapIndex]);
 
@@ -253,11 +236,11 @@ void free(void *ptr) {
 		/* we've locked the wrong heap - the superblock has moved
 		 * unlock and relock the uptodate heap*/
 		pthread_mutex_unlock(&heapLocks[pHeap->_CpuId]);
+		pthread_mutex_lock(&(pSb->_meta._sbLock));
 		pHeap=pSb->_meta._pOwnerHeap;
+		pthread_mutex_unlock(&(pSb->_meta._sbLock));
 		pthread_mutex_lock(&heapLocks[pHeap->_CpuId]);
-		if (pHeap!= pSb->_meta._pOwnerHeap){
-				printf("heap changed again!\n");
-			}
+
 	}
 
 

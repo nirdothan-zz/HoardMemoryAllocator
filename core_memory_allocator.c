@@ -16,10 +16,10 @@
 
 #define MAPFILE "/dev/zero"
 
-static int fd;
+
 
 void *getCore(size_t size) {
-
+	int fd;
 
 	fd = open(MAPFILE, O_RDWR);
 
@@ -34,6 +34,7 @@ void *getCore(size_t size) {
 		perror("Error mmapping the file");
 		exit(-1);
     }
+    close(fd);
 	return p;
 }
 
@@ -46,6 +47,3 @@ void freeCore(void *p, size_t length){
 	   }
 }
 
-void closeMmap(){
-	close(fd);
-}

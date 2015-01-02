@@ -1,3 +1,12 @@
+#
+# Makefile 
+#  Created on: Dec 19, 2014
+#      Author: Nir Dothan 028434009
+#
+#      Makefile for ex12
+#
+ 
+
 CC=gcc
 
 TARGET = linux-scalability
